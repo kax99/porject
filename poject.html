@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Problem Solver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 18px;
+            color: #555;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-left: 5px solid #28a745;
+            font-weight: bold;
+            color: #155724;
+        }
+        .step-container {
+            margin-top: 20px;
+            background-color: #f7f9fc;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            color: #333;
+            line-height: 1.6;
+            border-radius: 5px;
+        }
+
+        .step {
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .value {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .result-step {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Physics Problem Solver</h1>
+
+        <div class="section">
+            <h2>Select Chapter</h2>
+            <select id="chapterSelect" onchange="showChapterOptions()">
+                <option value="" disabled selected>Select a chapter</option>
+                <option value="optics">Light (Optics)</option>
+                <option value="electricity">Electricity</option>
+                <option value="thermodynamics">Thermodynamics</option>
+                <option value="mechanics">Mechanics</option>
+            </select>
+        </div>
+
+        <div id="opticsOptions" class="section" style="display:none;">
+            <h2>Choose Optics Problem</h2>
+            <select id="opticsProblemSelect" onchange="showOpticsInputs()">
+                <option value="" disabled selected>Select an optics problem</option>
+                <option value="lens">Lens Formula</option>
+                <option value="mirror">Mirror Formula</option>
+                <option value="snell">Snell's Law</option>
+            </select>
+            <div id="opticsInputs"></div>
+        </div>
+
+        <div id="electricityOptions" class="section" style="display:none;">
+            <h2>Choose Electricity Problem</h2>
+            <select id="electricityProblemSelect" onchange="showElectricityInputs()">
+                <option value="" disabled selected>Select an electricity problem</option>
+                <option value="ohm">Ohm's Law</option>
+            </select>
+            <div id="electricityInputs"></div>
+        </div>
+
+        <div id="thermodynamicsOptions" class="section" style="display:none;">
+            <h2>Choose Thermodynamics Problem</h2>
+            <select id="thermodynamicsProblemSelect" onchange="showThermodynamicsInputs()">
+                <option value="" disabled selected>Select a thermodynamics problem</option>
+                <option value="newton">Newton's Law of Cooling</option>
+            </select>
+            <div id="thermodynamicsInputs"></div>
+        </div>
+
+        <div id="mechanicsOptions" class="section" style="display:none;">
+            <h2>Choose Mechanics Problem</h2>
+            <select id="mechanicsProblemSelect" onchange="showMechanicsInputs()">
+                <option value="" disabled selected>Select a mechanics problem</option>
+                <option value="kinematic">Kinematic Equation</option>
+                <option value="workenergy">Work-Energy Theorem</option>
+            </select>
+            <div id="mechanicsInputs"></div>
+        </div>
+
+        <button onclick="solveProblem()">Solve</button>
+
+        <div id="steps" class="step-container" style="display:none;"></div>
+        <div id="result" class="result" style="display:none;"></div>
+    </div>
+
+    <script>
+        function showChapterOptions() {
+            const chapter = document.getElementById("chapterSelect").value;
+            document.getElementById("opticsOptions").style.display = chapter === "optics" ? "block" : "none";
+            document.getElementById("electricityOptions").style.display = chapter === "electricity" ? "block" : "none";
+            document.getElementById("thermodynamicsOptions").style.display = chapter === "thermodynamics" ? "block" : "none";
+            document.getElementById("mechanicsOptions").style.display = chapter === "mechanics" ? "block" : "none";
+            document.getElementById("result").style.display = "none";
+            document.getElementById("steps").style.display = "none";
+        }
+
+        function showOpticsInputs() {
+            const problemType = document.getElementById("opticsProblemSelect").value;
+            let inputsHtml = "";
+
+            if (problemType === "lens" || problemType === "mirror") {
+                inputsHtml += '<input type="number" id="u" placeholder="Object distance (u)">';
+                inputsHtml += '<input type="number" id="v" placeholder="Image distance (v)">';
+                inputsHtml += '<input type="number" id="f" placeholder="Focal length (f)">';
+            } else if (problemType === "snell") {
+                inputsHtml += '<input type="number" id="n1" placeholder="Refractive index n1">';
+                inputsHtml += '<input type="number" id="theta1" placeholder="Angle of incidence (θ1)">';
+                inputsHtml += '<input type="number" id="n2" placeholder="Refractive index n2">';
+                inputsHtml += '<input type="number" id="theta2" placeholder="Angle of refraction (θ2)">';
+            }
+
+            document.getElementById("opticsInputs").innerHTML = inputsHtml;
+        }
+
+        function showElectricityInputs() {
+            const problemType = document.getElementById("electricityProblemSelect").value;
+            let inputsHtml = "";
+
+            if (problemType === "ohm") {
+                inputsHtml += '<input type="number" id="V" placeholder="Voltage (V)">';
+                inputsHtml += '<input type="number" id="I" placeholder="Current (I)">';
+                inputsHtml += '<input type="number" id="R" placeholder="Resistance (R)">';
+            }
+
+            document.getElementById("electricityInputs").innerHTML = inputsHtml;
+        }
+
+        function showThermodynamicsInputs() {
+            const problemType = document.getElementById("thermodynamicsProblemSelect").value;
+            let inputsHtml = "";
+
+            if (problemType === "newton") {
+                inputsHtml += '<input type="number" id="T0" placeholder="Initial temperature (T0)">';
+                inputsHtml += '<input type="number" id="T" placeholder="Temperature after time (T)">';
+                inputsHtml += '<input type="number" id="k" placeholder="Cooling constant (k)">';
+                inputsHtml += '<input type="number" id="time" placeholder="Time (t)">';
+            }
+
+            document.getElementById("thermodynamicsInputs").innerHTML = inputsHtml;
+        }
+
+        function showMechanicsInputs() {
+            const problemType = document.getElementById("mechanicsProblemSelect").value;
+            let inputsHtml = "";
+
+            if (problemType === "kinematic") {
+                inputsHtml += '<input type="number" id="u_kinematic" placeholder="Initial velocity (u)">';
+                inputsHtml += '<input type="number" id="a" placeholder="Acceleration (a)">';
+                inputsHtml += '<input type="number" id="t_kinematic" placeholder="Time (t)">';
+            } else if (problemType === "workenergy") {
+                inputsHtml += '<input type="number" id="F" placeholder="Force (F)">';
+                inputsHtml += '<input type="number" id="d" placeholder="Displacement (d)">';
+            }
+
+            document.getElementById("mechanicsInputs").innerHTML = inputsHtml;
+        }
+
+        function solveProblem() {
+            const chapter = document.getElementById("chapterSelect").value;
+            let stepsText = "";
+            let resultText = "";
+
+            if (chapter === "optics") {
+                const problemType = document.getElementById("opticsProblemSelect").value;
+
+                if (problemType === "lens" || problemType === "mirror") {
+                    let u = parseFloat(document.getElementById("u").value);
+                    let v = parseFloat(document.getElementById("v").value);
+                    let f = parseFloat(document.getElementById("f").value);
+
+                    if (u && v) {
+                        f = 1 / ((1 / v) - (1 / u));
+                        stepsText = `
+                            <div class="step"><span class="step-title">Given:</span> Object distance (u) = <span class="value">${u}</span>, Image distance (v) = <span class="value">${v}</span></div>
+                            <div class="step"><span class="step-title">Using formula:</span> <b>1/f = 1/v - 1/u</b></div>
+                            <div class="step"><span class="step-title">Calculation:</span> 1/f = 1/<span class="value">${v}</span> - 1/<span class="value">${u}</span></div>
+                            <div class="step result-step"><span class="step-title">Focal length (f) =</span> <span class="value">${f}</span></div>
+                        `;
+                        resultText = `Focal length (f) = ${f}`;
+                    } else if (u && f) {
+                        v = 1 / ((1 / f) + (1 / u));
+                        stepsText = `
+                            <div class="step"><span class="step-title">Given:</span> Object distance (u) = <span class="value">${u}</span>, Focal length (f) = <span class="value">${f}</span></div>
+                            <div class="step"><span class="step-title">Using formula:</span> <b>1/f = 1/v - 1/u</b></div>
+                            <div class="step"><span class="step-title">Calculation:</span> 1/${f} = 1/v - 1/${u}</div>
+                            <div class="step result-step"><span class="step-title">Image distance (v) =</span> <span class="value">${v}</span></div>
+                        `;
+                        resultText = `Image distance (v) = ${v}`;
+                    } else if (v && f) {
+                        u = 1 / ((1 / f) - (1 / v));
+                        stepsText = `
+                            <div class="step"><span class="step-title">Given:</span> Image distance (v) = <span class="value">${v}</span>, Focal length (f) = <span class="value">${f}</span></div>
+                            <div class="step"><span class="step-title">Using formula:</span> <b>1/f = 1/v - 1/u</b></div>
+                            <div class="step"><span class="step-title">Calculation:</span> 1/${f} = 1/${v} - 1/u</div>
+                            <div class="step result-step"><span class="step-title">Object distance (u) =</span> <span class="value">${u}</span></div>
+                        `;
+                        resultText = `Object distance (u) = ${u}`;
+                    }
+                } else if (problemType === "snell") {
+                    let n1 = parseFloat(document.getElementById("n1").value);
+                    let theta1 = parseFloat(document.getElementById("theta1").value);
+                    let n2 = parseFloat(document.getElementById("n2").value);
+                    let theta2 = parseFloat(document.getElementById("theta2").value);
+
+                    if (n1 && theta1 && n2) {
+                        theta2 = Math.asin((n1 * Math.sin(theta1 * Math.PI / 180)) / n2) * 180 / Math.PI;
+                        stepsText = `
+                            <div class="step"><span class="step-title">Given:</span> n1 = <span class="value">${n1}</span>, θ1 = <span class="value">${theta1}</span>°, n2 = <span class="value">${n2}</span></div>
+                            <div class="step"><span class="step-title">Using formula:</span> <b>n1 * sin(θ1) = n2 * sin(θ2)</b></div>
+                            <div class="step"><span class="step-title">Calculation:</span> θ2 = asin((n1 * sin(θ1)) / n2)</div>
+                            <div class="step result-step"><span class="step-title">Angle of refraction (θ2) =</span> <span class="value">${theta2.toFixed(2)}</span>°</div>
+                        `;
+                        resultText = `Angle of refraction (θ2) = ${theta2.toFixed(2)}°`;
+                    }
+                }
+            } else if (chapter === "electricity") {
+                const problemType = document.getElementById("electricityProblemSelect").value;
+
+                if (problemType === "ohm") {
+                    let V = parseFloat(document.getElementById("V").value);
+                    let I = parseFloat(document.getElementById("I").value);
+                    let R = parseFloat(document.getElementById("R").value);
+
+                    if (V && I) {
+                        R = V / I;
+                        stepsText = `
+                            <div class="step"><span class="step-title">Given:</span> Voltage (V) = <span class="value">${V}</span>, Current (I) = <span class="value">${I}</span></div>
+                            <div class="step"><span class="step-title">Using formula:</span> <b>V = I * R</b></div>
+                            <div class="step"><span class="step-title">Calculation:</span> R = V / I</div>
+                            <div class="step result-step"><span class="step-title">Resistance (R) =</span> <span class="value">${R}</span></div>
+                        `;
+                        resultText = `Resistance (R) = ${R}`;
+                    } else if (V && R) {
+                        I = V / R;
+                        stepsText = `
+                            <div class="step"><span class="step-title">Given:</span> Voltage (V) = <span class="value">${V}</span>, Resistance (R) = <span class="value">${R}</span></div>
+                            <div class="step"><span class="step-title">Using formula:</span> <b>V = I * R</b></div>
+                            <div class="step"><span class="step-title">Calculation:</span> I = V / R</div>
+                            <div class="step result-step"><span class="step-title">Current (I) =</span> <span class="value">${I}</span></div>
+                        `;
+                        resultText = `Current (I) = ${I}`;
+                    } else if (I && R) {
+                        V = I * R;
+                        stepsText = `
+                            <div class="step"><span class="step-title">Given:</span> Current (I) = <span class="value">${I}</span>, Resistance (R) = <span class="value">${R}</span></div>
+                            <div class="step"><span class="step-title">Using formula:</span> <b>V = I * R</b></div>
+                            <div class="step"><span class="step-title">Calculation:</span> V = I * R</div>
+                            <div class="step result-step"><span class="step-title">Voltage (V) =</span> <span class="value">${V}</span></div>
+                        `;
+                        resultText = `Voltage (V) = ${V}`;
+                    }
+                }
+            } else if (chapter === "thermodynamics") {
+                const problemType = document.getElementById("thermodynamicsProblemSelect").value;
+
+                if (problemType === "newton") {
+                    let T0 = parseFloat(document.getElementById("T0").value);
+                    let T = parseFloat(document.getElementById("T").value);
+                    let k = parseFloat(document.getElementById("k").value);
+                    let time = parseFloat(document.getElementById("time").value);
+
+                    let formula = T = T0 + (T0 - T) * Math.exp(-k * time);
+                    stepsText = `
+                        <div class="step"><span class="step-title">Given:</span> T0 = <span class="value">${T0}</span>, T = <span class="value">${T}</span>, k = <span class="value">${k}</span>, time = <span class="value">${time}</span></div>
+                        <div class="step"><span class="step-title">Using formula:</span> <b>T = T0 + (T0 - T) * exp(-k * time)</b></div>
+                        <div class="step"><span class="step-title">Calculation:</span> ${T} = ${T0} + (${T0} - ${T}) * exp(-${k} * ${time})</div>
+                        <div class="step result-step"><span class="step-title">Temperature after time (T) =</span> <span class="value">${formula}</span></div>
+                    `;
+                    resultText = `Temperature after time (T) = ${formula}`;
+                }
+            } else if (chapter === "mechanics") {
+                const problemType = document.getElementById("mechanicsProblemSelect").value;
+
+                if (problemType === "kinematic") {
+                    let u_kinematic = parseFloat(document.getElementById("u_kinematic").value);
+                    let a = parseFloat(document.getElementById("a").value);
+                    let t_kinematic = parseFloat(document.getElementById("t_kinematic").value);
+                    let v = u_kinematic + a * t_kinematic;
+                    stepsText = `
+                        <div class="step"><span class="step-title">Given:</span> Initial velocity (u) = <span class="value">${u_kinematic}</span>, Acceleration (a) = <span class="value">${a}</span>, Time (t) = <span class="value">${t_kinematic}</span></div>
+                        <div class="step"><span class="step-title">Using formula:</span> <b>v = u + at</b></div>
+                        <div class="step"><span class="step-title">Calculation:</span> v = ${u_kinematic} + ${a} * ${t_kinematic}</div>
+                        <div class="step result-step"><span class="step-title">Final velocity (v) =</span> <span class="value">${v}</span></div>
+                    `;
+                    resultText = `Final velocity (v) = ${v}`;
+                } else if (problemType === "workenergy") {
+                    let F = parseFloat(document.getElementById("F").value);
+                    let d = parseFloat(document.getElementById("d").value);
+                    let work = F * d;
+                    stepsText = `
+                        <div class="step"><span class="step-title">Given:</span> Force (F) = <span class="value">${F}</span>, Displacement (d) = <span class="value">${d}</span></div>
+                        <div class="step"><span class="step-title">Using formula:</span> <b>Work = F * d</b></div>
+                        <div class="step"><span class="step-title">Calculation:</span> Work = ${F} * ${d}</div>
+                        <div class="step result-step"><span class="step-title">Work done =</span> <span class="value">${work}</span></div>
+                    `;
+                    resultText = `Work done = ${work}`;
+                }
+            }
+
+            document.getElementById("steps").innerHTML = stepsText;
+            document.getElementById("result").innerHTML = resultText;
+            document.getElementById("steps").style.display = "block";
+            document.getElementById("result").style.display = "block";
+        }
+    </script>
+</body>
+</html>
